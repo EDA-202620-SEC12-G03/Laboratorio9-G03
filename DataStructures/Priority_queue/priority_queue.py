@@ -27,7 +27,10 @@ def new_heap(is_min_pq=True):
     return heap
     
 def insert(heap, priority, value):
-    pass
+    heap["size"] += 1
+    al.insert_element(heap["elements"], value, heap["size"] - 1)
+    swim(heap, heapp["size"] - 1)
+    return heap
     
 def size(heap):
     return heap['size']
@@ -38,5 +41,3 @@ def is_empty(heap):
 
 
 
-
-    
