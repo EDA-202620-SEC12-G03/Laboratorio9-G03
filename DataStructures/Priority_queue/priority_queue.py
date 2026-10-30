@@ -1,4 +1,4 @@
-from DataStructures.Priority_queue import pq_entry as pe
+from DataStructures.Priority_queue import pq_entry as pqe
 from DataStructures.Tree import binary_search_tree as bst
 from DataStructures.List import array_list as al
 
