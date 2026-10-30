@@ -26,3 +26,17 @@ def new_heap(is_min_pq=True):
     
     return heap
     
+def insert(heap, priority, value):
+    pass
+    
+def size(heap):
+    return heap['size']
+    
+    
+def is_empty(heap):
+    return size(heap) == 0
+
+
+
+
+    
