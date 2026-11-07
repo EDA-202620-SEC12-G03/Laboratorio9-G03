@@ -3,136 +3,149 @@ from DataStructures.Tree import binary_search_tree as bst
 from DataStructures.List import array_list as al
 
 
-# priority seria determinado por la direccion de la ruta y hora de partida
 def default_compare_lower_value(father_node, child_node):
-    if pqe.get_priority(father_node) <= pqe.get_priority(child_node):
-        return True
-    return False
+    # Retorna True si el padre tiene MAYOR valor (rompe el Min-Heap) y debe intercambiarse
+    return pqe.get_priority(father_node) > pqe.get_priority(child_node)
 
 def default_compare_higher_value(father_node, child_node):
-    if pqe.get_priority(father_node) >= pqe.get_priority(child_node):
-        return True
-    return False
+    # Retorna True si el padre tiene MENOR valor (rompe el Max-Heap) y debe intercambiarse
+    return pqe.get_priority(father_node) < pqe.get_priority(child_node)
 
-def priority(my_heap, parent:any, child:any):
-    # Tu usas esta función directamente, no el default compare!
+def should_swap(my_heap, parent, child):
+    """Devuelve True si el par (padre, hijo) rompe la condición del heap."""
     try:
         return my_heap["cmp_function"](parent, child)
     except Exception as exp:
-        raise RuntimeError("Error en priority")
+        raise RuntimeError("Error en priority") from exp
 
 def new_heap(is_min_pq=True):
-    cmp_function = default_compare_higher_value
-    if is_min_pq:
-        cmp_function = default_compare_lower_value
+    cmp_function = default_compare_lower_value if is_min_pq else default_compare_higher_value
     heap = {
-            'elements': None,
-            'size': 0,
-            'cmp_function': cmp_function
-            }
-    
-    heap['elements'] = al.new_list()
-    # al.add_last(heap["elements"], None)
-    
+        'elements': al.new_list(),
+        'size': 0,
+        'cmp_function': cmp_function
+    }
     return heap
-    
-def swim(heap: dict, idx: int) -> None:
-    """_swim hace "swim", "sube" o "flota" "bottom-up reheapfy" el elemento en la posición idx del montículo (heap).
 
-    Args:
-        heap (dict): diccionario que representa el montículo (heap).
-        idx (int): índice del elemento a hacer "swim".
-    """
+def swim(heap: dict, idx: int) -> None:
     try:     
         while idx > 0:
-                _parent = al.get_element(heap["elements"], idx // 2)
-                _element = al.get_element(heap["elements"], idx)
-                if priority(heap, _parent, _element):
-                    # Los cambia si el padre tiene mas prioridad - Se tiene que revisar si esto no va al revez
-                    exchange(heap, idx, idx // 2) # Usamos exchange y no insert
-                idx = idx // 2
+            parent_idx = (idx - 1) // 2
+            _parent = al.get_element(heap["elements"], parent_idx)
+            _element = al.get_element(heap["elements"], idx)
+            
+            # Intercambia si se rompe la propiedad del heap
+            if should_swap(heap, _parent, _element):
+                exchange(heap, parent_idx, idx)
+                idx = parent_idx
+            else:
+                break
     except Exception as exp:
         raise RuntimeError("Error en swim") from exp
-        
-def sink(hp: dict, idx: int) -> None:
-    """_sink hace "sink", "baja" o "hundir" "top-down reheapfy" el elemento en la posición idx del montículo (heap).
 
-    Args:
-        hp (dict): diccionario que representa el montículo (heap).
-        idx (int): índice del elemento a hacer "sink".
-    """
+def insert(heap, priority, value):
+    try:
+        lista = heap["elements"]
+        node = pqe.new_pq_entry(priority, value)
+        al.add_last(lista, node)
+        heap["size"] += 1
+        swim(heap, size(heap) - 1)
+        return heap
+    except Exception as exp:
+        raise RuntimeError("Error en insert") from exp
+
+def sink(hp: dict, idx: int) -> None:
     try:
         _size = hp["size"]
-        while 2 * idx < _size:
-            j = 2 * idx
-            if j < _size:
-                _elm1 = al.get_element(hp["elements"], j)
-                _elm2 = al.get_element(hp["elements"], j + 1)
-                if priority(hp, _elm1, _elm2):
-                    # Tambien verificar aqui
-                    j += 1
-            _elm1 = al.get_element(hp["elements"], idx)
-            _elm2 = al.get_element(hp["elements"], j)
-            if not priority(hp, _elm1, _elm2):
-                # Se tiene que verificar si proority no esta danto el resultado al revez
+        while 2 * idx + 1 < _size:
+            left_child = 2 * idx + 1
+            right_child = 2 * idx + 2
+            target_child = left_child
+
+            # Seleccionar el hijo prioritario para comparar/intercambiar
+            if right_child < _size:
+                _elm_left = al.get_element(hp["elements"], left_child)
+                _elm_right = al.get_element(hp["elements"], right_child)
+                if should_swap(hp, _elm_left, _elm_right):
+                    target_child = right_child
+
+            _parent = al.get_element(hp["elements"], idx)
+            _child = al.get_element(hp["elements"], target_child)
+
+            if should_swap(hp, _parent, _child):
+                exchange(hp, idx, target_child)
+                idx = target_child
+            else:
                 break
-            exchange(hp, idx, j)
-            idx = j
     except Exception as exp:
-        raise RuntimeError("Error en _sink") from exp
-        
-def _greater(heap: dict, elm1: any, elm2: any) -> bool: # Esto no es lo mismo que default compare? - Si :(
-    """_greater compara dos elementos del montículo (heap) usando la función de comparación.
+        raise RuntimeError("Error en sink") from exp
 
-    Args:
-        heap (dict): diccionario que representa el montículo (heap).
-        elm1 (Any): primer elemento a comparar.
-        elm2 (Any): segundo elemento a comparar.
-
-    Returns:
-        bool: True si elm1 > elm2, False en caso contrario.
-    """
-    try:
-        _cmp = heap["cmp_function"]
-        if _cmp(elm1, elm2) > 0:
-            return True
-        return False
-    except Exception as exp:
-        raise RuntimeError("Error en value_set") from exp
-    
-
-def exchange(heap, pos1, pos2): # Esta duncion la tenemos a cambio de insert
+def exchange(heap, pos1, pos2):
     try:
         al.exchange(heap["elements"], pos1, pos2)
     except Exception as exp:
-        raise RuntimeError("Error en exchange")
+        raise RuntimeError("Error en exchange") from exp
 
 def size(heap):
     try:
         return al.size(heap["elements"])
     except Exception as exp:
-        raise RuntimeError("Error en el size")
-    
+        raise RuntimeError("Error en el size") from exp
+
 def is_empty(heap):
     try:
-        if size(heap) <= 0:
-            return True
-        return False
+        return size(heap) <= 0
     except Exception as exp:
-        raise RuntimeError("Error en is_empty")
+        raise RuntimeError("Error en is_empty") from exp
 
-def remove():
-    pass
-
-def get_first_prioroty(heap):
-    pass
+def remove(heap):
+    try:
+        if is_empty(heap):
+            return None
+        root = al.get_element(heap["elements"], 0)
+        last = al.get_element(heap["elements"], size(heap) - 1)
+        al.change_info(heap["elements"], 0, last)
+        al.remove_last(heap["elements"])
+        heap["size"] -= 1
         
+        if not is_empty(heap):
+            sink(heap, 0)
+            
+        return root
+    except Exception as exp:
+        raise RuntimeError("Error en remove") from exp
 
-def is_present_value():
-    pass
+def get_first_priority(heap):
+    try:
+        if is_empty(heap):
+            return None
+        return al.get_element(heap["elements"], 0)
+    except Exception as exp:
+        raise RuntimeError("Error en get_first_priority") from exp
 
-def ontains(): # que rayos ese nombre
-    pass
+def is_present_value(heap, value):
+    try:
+        pos = al.is_present(heap["elements"], value)
+        return pos if pos != -1 else -1
+    except Exception as exp:
+        raise RuntimeError("Error en is_present_value") from exp
 
-def imporve_priority():
-    pass
+def contains(heap, value):
+    try:
+        return is_present_value(heap, value) != -1
+    except Exception as exp:
+        raise RuntimeError("Error en contains") from exp
+
+def improve_priority(heap, new_priority, value):
+    pos = is_present_value(heap, value)
+    if pos == -1:
+        return heap
+    elemen = al.get_element(heap["elements"], pos)
+    old_priority = pqe.get_priority(elemen)
+    
+    pqe.set_priority(elemen, new_priority)
+    
+    # Reorganizar el elemento según si la prioridad subió o bajó
+    swim(heap, pos)
+    sink(heap, pos)
+    return heap
