@@ -110,7 +110,7 @@ def add_stop(analyzer, stop):
     #         'priority': stop['WD_FirstBus']
     #     }
     #     pq.insert(analyzer['pq'], element['priority'], element)
-    if stop['StopSequence'] == '1'
+    if stop['StopSequence'] == '1':
         element = {
         'route_id': stop['ServiceNo'],
         'direction': stop['Direction'],
