@@ -169,7 +169,7 @@ def get_next_route(analyzer):
     # next_route = pq.min(analyzer['pq'])
     # pq.delMin(analyzer['pq'])
     # return next_route
-    next_route = pq.min(analyzer['routes_pq'])
-    pq.delMin(analyzer['routes_pq'])
+    next_route = pq.get_first_priority(analyzer['routes_pq'])
+    pq.remove(analyzer['routes_pq'])
     return next_route  
 
