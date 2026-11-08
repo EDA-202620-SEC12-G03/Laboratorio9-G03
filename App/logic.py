@@ -29,9 +29,9 @@ import time
 import os
 
 from DataStructures.Priority_queue import priority_queue as pq
-from DataStructures import array_list as al
+from DataStructures.List import array_list as al
 
-data_dir = os.path.dirname(os.path.realpath('__file__')) + '/Data/singapur_bus_routes/'
+data_dir = os.path.dirname(os.path.realpath('bus_routes_150.csv')) + '/Data/singapur_bus_routes/'
 
 
 def new_logic():
