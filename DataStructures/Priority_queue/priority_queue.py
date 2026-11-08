@@ -11,6 +11,23 @@ def default_compare_higher_value(father_node, child_node):
     # Retorna True si el padre tiene MENOR valor (rompe el Max-Heap) y debe intercambiarse
     return pqe.get_priority(father_node) < pqe.get_priority(child_node)
 
+def default_compare_function(value, pq_node):
+    """Compara entre el valor de un nodo de la lista y un valor especifico
+
+    Args:
+        pq_node (dict): nodo de la lista
+        value (any): valor que se quiere comparar, o una entrada de la cola
+    """
+    if isinstance(value, dict):
+        value = pqe.get_value(value)
+    node_value = pqe.get_value(pq_node)
+    if value > node_value:
+        return 1
+    if value < node_value:
+        return -1
+    else:
+        return 0
+
 def should_swap(my_heap, parent, child):
     """Devuelve True si el par (padre, hijo) rompe la condición del heap."""
     try:
@@ -111,7 +128,7 @@ def remove(heap):
         if not is_empty(heap):
             sink(heap, 0)
             
-        return root
+        return pqe.get_value(root)
     except Exception as exp:
         raise RuntimeError("Error en remove") from exp
 
@@ -119,18 +136,31 @@ def get_first_priority(heap):
     try:
         if is_empty(heap):
             return None
-        return al.get_element(heap["elements"], 0)
+        return pqe.get_value(al.get_element(heap["elements"], 0))
     except Exception as exp:
         raise RuntimeError("Error en get_first_priority") from exp
 
 def is_present_value(heap, value):
+    """Revisa si un valor especifico existe dentro del heap
+
+    Args:
+        heap (dict): el heap que estas revisando
+        value (any): el valor que quieres buscar
+
+    Raises:
+        RuntimeError: puede ser un problema de tipos de dato
+
+    Returns:
+        _type_: Retorna la posicion (comenzando en 1) si existe, si no, -1
+    """
     try:
-        pos = al.is_present(heap["elements"], value)
-        return pos if pos != -1 else -1
+        pos = al.is_present(heap["elements"], value, default_compare_function)
+        return pos + 1 if pos != -1 else -1
     except Exception as exp:
         raise RuntimeError("Error en is_present_value") from exp
 
 def contains(heap, value):
+    # Esta funcion devuelve un booleano
     try:
         return is_present_value(heap, value) != -1
     except Exception as exp:
@@ -140,6 +170,7 @@ def improve_priority(heap, new_priority, value):
     pos = is_present_value(heap, value)
     if pos == -1:
         return heap
+    pos -= 1
     elemen = al.get_element(heap["elements"], pos)
     old_priority = pqe.get_priority(elemen)
     
