@@ -116,7 +116,8 @@ def add_stop(analyzer, stop):
         'direction': stop['Direction'],
         'priority': stop['WD_FirstBus']
     }
-    pq.insert(analyzer['routes_pq'], element['priority'], element)
+        pq.insert(analyzer['routes_pq'], element['route_id'], element)
+    
     return analyzer
 
 
