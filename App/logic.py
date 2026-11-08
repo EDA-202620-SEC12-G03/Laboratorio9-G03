@@ -48,8 +48,8 @@ def new_logic():
         'routes_pq': None
     }
     
-    analyzer['stops'] = None #TODO completar la creación de la lista
-    analyzer['routes_pq'] = None #TODO completar la creación de la cola de prioridad
+    analyzer['stops'] = al.new_list()
+    analyzer['routes_pq'] = pq.new_heap(is_min_pq=True)
 
     return analyzer
 
@@ -110,7 +110,13 @@ def add_stop(analyzer, stop):
     #         'priority': stop['WD_FirstBus']
     #     }
     #     pq.insert(analyzer['pq'], element['priority'], element)
-
+    if stop['StopSequence'] == '1'
+        element = {
+        'route_id': stop['ServiceNo'],
+        'direction': stop['Direction'],
+        'priority': stop['WD_FirstBus']
+    }
+    pq.insert(analyzer['routes_pq'], element['priority'], element)
     return analyzer
 
 
@@ -162,6 +168,7 @@ def get_next_route(analyzer):
     # next_route = pq.min(analyzer['pq'])
     # pq.delMin(analyzer['pq'])
     # return next_route
-
-    pass
+    next_route = pq.min(analyzer['routes_pq'])
+    pq.delMin(analyzer['routes_pq'])
+    return next_route  
 
